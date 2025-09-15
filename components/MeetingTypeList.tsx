@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import HomeCard from './HomeCard';
@@ -30,6 +30,14 @@ const MeetingTypeList = () => {
   const client = useStreamVideoClient();
   const { user } = useUser();
   const { toast } = useToast();
+
+  // Get role from localStorage
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('userRole'));
+    }
+  }, []);
 
   const createMeeting = async () => {
     if (!client || !user) return;
@@ -71,12 +79,15 @@ const MeetingTypeList = () => {
 
   return (
     <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-      <HomeCard
-        img="/icons/add-meeting.svg"
-        title="New Meeting"
-        description="Start an instant meeting"
-        handleClick={() => setMeetingState('isInstantMeeting')}
-      />
+      {/* Only students can create instant meetings */}
+      {role === 'student' && (
+        <HomeCard
+          img="/icons/add-meeting.svg"
+          title="New Meeting"
+          description="Start an instant meeting"
+          handleClick={() => setMeetingState('isInstantMeeting')}
+        />
+      )}
       <HomeCard
         img="/icons/join-meeting.svg"
         title="Join Meeting"
@@ -84,13 +95,16 @@ const MeetingTypeList = () => {
         className="bg-blue-1"
         handleClick={() => setMeetingState('isJoiningMeeting')}
       />
-      <HomeCard
-        img="/icons/schedule.svg"
-        title="Schedule Meeting"
-        description="Plan your meeting"
-        className="bg-purple-1"
-        handleClick={() => setMeetingState('isScheduleMeeting')}
-      />
+      {/* Only teachers can schedule meetings */}
+      {role === 'teacher' && (
+        <HomeCard
+          img="/icons/schedule.svg"
+          title="Schedule Meeting"
+          description="Plan your meeting"
+          className="bg-purple-1"
+          handleClick={() => setMeetingState('isScheduleMeeting')}
+        />
+      )}
       <HomeCard
         img="/icons/recordings.svg"
         title="View Recordings"
@@ -164,14 +178,17 @@ const MeetingTypeList = () => {
         />
       </MeetingModal>
 
-      <MeetingModal
-        isOpen={meetingState === 'isInstantMeeting'}
-        onClose={() => setMeetingState(undefined)}
-        title="Start an Instant Meeting"
-        className="text-center"
-        buttonText="Start Meeting"
-        handleClick={createMeeting}
-      />
+      {/* Only students can open instant meeting modal */}
+      {role === 'student' && (
+        <MeetingModal
+          isOpen={meetingState === 'isInstantMeeting'}
+          onClose={() => setMeetingState(undefined)}
+          title="Start an Instant Meeting"
+          className="text-center"
+          buttonText="Start Meeting"
+          handleClick={createMeeting}
+        />
+      )}
     </section>
   );
 };
