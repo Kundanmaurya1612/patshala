@@ -1,6 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useState } from "react";
-import type { Metadata } from "next";
+import { ReactNode } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
